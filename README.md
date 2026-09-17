@@ -4,7 +4,7 @@
 
 Live demo: **https://meredithb104.github.io/commons-ui/** · Portfolio: **https://meredithb104.github.io/**
 
-I'm a blind front-end engineer. I use a screen reader and a braille display all day, and I've spent six years auditing other people's component libraries for the same dozen mistakes. This is the library I wanted them to have started from: small, opinionated, and built so that the accessible path is the only path.
+I'm a blind accessibility engineer who can also write the code she audits. I use JAWS and a braille display all day, every day, and I have spent six-plus years auditing other people's component libraries for the same dozen mistakes. This is the library from which I wanted them to have started: small, opinionated, and built so that the accessible path is the only path.
 
 The demo content is real civic work: a Know Your Rights guide with a plain-language switch, a mutual-aid request form, a curb-cut petition, a barrier-report dialog, and multilingual resources. Nothing is lorem ipsum, because you can't judge a form component on fake fields.
 
