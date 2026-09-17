@@ -1,0 +1,65 @@
+/* Base styles. Everything reads from tokens.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family-sans);
+  font-size: 100%; /* never lock the user's zoom or text-size preference */
+  line-height: var(--font-line-height-body);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Focus: one ring, everywhere, always visible. WCAG 2.4.7 / 2.4.11 / 2.4.13. */
+:focus-visible {
+  outline: var(--size-focus-ring) solid var(--color-focus);
+  outline-offset: var(--size-focus-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Forced colors (Windows High Contrast): keep outlines and borders system-drawn. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid CanvasText;
+  }
+}
+
+h1,
+h2,
+h3 {
+  line-height: var(--font-line-height-tight);
+  margin: 0 0 var(--space-3);
+}
+h1 {
+  font-size: var(--font-size-3xl);
+}
+h2 {
+  font-size: var(--font-size-2xl);
+}
+h3 {
+  font-size: var(--font-size-xl);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+  max-width: 70ch; /* WCAG 1.4.8 line length guidance */
+}
+
+a {
+  color: var(--color-primary);
+  text-underline-offset: 0.15em;
+}
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* WCAG 1.4.12 Text Spacing: nothing here breaks if users override spacing. */
