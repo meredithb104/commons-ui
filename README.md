@@ -2,7 +2,7 @@
 
 **Accessible-by-default React components for organizers, advocates, and mutual-aid networks.**
 
-Live demo: **https://meredithb104.github.io/commons-ui/**
+Live demo: **https://meredithb104.github.io/commons-ui/** · Portfolio: **https://meredithb104.github.io/**
 
 I'm a blind front-end engineer. I use a screen reader and a braille display all day, and I've spent six years auditing other people's component libraries for the same dozen mistakes. This is the library I wanted them to have started from: small, opinionated, and built so that the accessible path is the only path.
 
