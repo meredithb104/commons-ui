@@ -286,6 +286,31 @@ describe("MenuButton", () => {
     expect(btn).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("Escape returns focus to the button even when focus was inside the panel, not on the button", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <MenuButton open={open} onOpenChange={setOpen} label="Main menu" controls="panel" />
+          <nav id="panel" hidden={!open}>
+            <a href="#a">Link</a>
+          </nav>
+        </>
+      );
+    }
+    render(<Harness />);
+    const btn = screen.getByRole("button", { name: "Main menu" });
+
+    await userEvent.click(btn);
+    const link = screen.getByRole("link", { name: "Link" });
+    link.focus();
+    expect(link).toHaveFocus();
+
+    await userEvent.keyboard("{Escape}");
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+    expect(btn).toHaveFocus();
+  });
+
   it("clicking the button itself to close doesn't also fire the outside-click handler", async () => {
     const onOpenChange = vi.fn();
     function Harness() {
