@@ -285,6 +285,30 @@ describe("MenuButton", () => {
     await userEvent.click(screen.getByRole("button", { name: "Outside" }));
     expect(btn).toHaveAttribute("aria-expanded", "false");
   });
+
+  it("clicking the button itself to close doesn't also fire the outside-click handler", async () => {
+    const onOpenChange = vi.fn();
+    function Harness() {
+      const [open, setOpen] = useState(true);
+      return (
+        <MenuButton
+          open={open}
+          onOpenChange={(next) => {
+            onOpenChange(next);
+            setOpen(next);
+          }}
+          label="Main menu"
+        />
+      );
+    }
+    render(<Harness />);
+    // The button is inside its own "outside click" boundary, so the pointerdown
+    // listener added while open must not also call onOpenChange(false) — only
+    // the button's own click handler should, and exactly once.
+    await userEvent.click(screen.getByRole("button", { name: "Main menu" }));
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
 });
 
 describe("ProgressMeter", () => {
