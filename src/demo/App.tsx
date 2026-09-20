@@ -46,14 +46,14 @@ function Page() {
           <div className="site-header__bar">
             <p className="eyebrow">Commons UI</p>
             <MenuButton open={navOpen} onOpenChange={setNavOpen} label="Menu" controls="site-nav" className="site-header__menu-button" />
+            <nav id="site-nav" aria-label="Sections" className="site-nav" hidden={!navOpen}>
+              <a href="#kyr-h">Know your rights</a>
+              <a href="#pet-h">Petition</a>
+              <a href="#aid-h">Mutual aid</a>
+              <a href="#rep-h">Report a barrier</a>
+              <a href="#res-h">Resources</a>
+            </nav>
           </div>
-          <nav id="site-nav" aria-label="Sections" className="site-nav" hidden={!navOpen}>
-            <a href="#kyr-h">Know your rights</a>
-            <a href="#pet-h">Petition</a>
-            <a href="#aid-h">Mutual aid</a>
-            <a href="#rep-h">Report a barrier</a>
-            <a href="#res-h">Resources</a>
-          </nav>
           <h1>Accessible-by-default React components for organizers, advocates, and mutual aid.</h1>
           <p className="lede">
             A small component library where accessibility is enforced by the build, not requested in code review. Every

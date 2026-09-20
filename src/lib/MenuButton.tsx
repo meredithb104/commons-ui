@@ -25,8 +25,8 @@ export type MenuButtonProps = {
  * - The hamburger icon is aria-hidden; `label` is rendered as real text, so the name is never icon-only.
  * - aria-expanded reflects state; aria-controls (when given) points screen readers at the menu it opens.
  * - 44px minimum target (WCAG 2.5.8 Target Size), well past the 24px minimum, and the shared focus ring.
- * - Border and text switch to the primary color while expanded, so state is never color-only (1.4.1) —
- *   aria-expanded already carries it for assistive tech, and text/icon shape doesn't change.
+ * - Expanded state is never color-only (1.4.1): border/text switch to primary color AND the text goes
+ *   bold, matching how Tabs marks its selected tab. aria-expanded carries the state for assistive tech.
  */
 export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(function MenuButton(
   { open, onOpenChange, label, controls, id, className },

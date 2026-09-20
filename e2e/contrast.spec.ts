@@ -72,7 +72,7 @@ for (const theme of THEMES) {
   });
 }
 
-for (const theme of ["Light", "Dark"] as const) {
+for (const theme of THEMES) {
   test(`${theme}: MenuButton keeps text at 4.5:1 and a 3:1 boundary in default, hover, and expanded states`, async ({ page }) => {
     await page.goto("/");
     await setTheme(page, theme);

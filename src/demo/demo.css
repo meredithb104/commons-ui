@@ -10,6 +10,7 @@
   padding: var(--space-6) 0 var(--space-5);
 }
 .site-header__bar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,17 +19,50 @@
 .site-header__menu-button {
   flex-shrink: 0;
 }
+/* A real dropdown panel anchored under the button that opens it (not a block that
+   falls to the left edge of the page), matching the "More information" panel on
+   meredithb104.github.io. position:absolute takes it out of the flex row entirely. */
 .site-nav {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline-end: 0;
+  z-index: 20;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-2) 0 var(--space-4);
+  min-inline-size: 12rem;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: var(--size-border) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
 }
 .site-nav[hidden] {
   display: none;
 }
+/* The whole row is the target (WCAG 2.5.8), not just the words, and it's what
+   highlights on hover/focus — not only the text. Text stays the link color by
+   default; hover/focus switch to the page's own text color, which is what keeps
+   it at 4.5:1 on the tinted highlight (the same trade the MenuButton itself makes). */
 .site-nav a {
-  padding: var(--space-2) 0;
+  display: flex;
+  align-items: center;
+  inline-size: 100%;
+  min-height: var(--size-target);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-underline-offset: 0.15em;
+}
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-surface));
+  color: var(--color-text);
+}
+@media (forced-colors: active) {
+  .site-nav {
+    border: 2px solid CanvasText;
+    box-shadow: none;
+  }
 }
 .eyebrow {
   text-transform: uppercase;

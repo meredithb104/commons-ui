@@ -368,6 +368,7 @@
 .cui-menu-button[aria-expanded="true"] {
   border-color: var(--color-primary);
   color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
 }
 .cui-menu-button:hover,
 .cui-menu-button:focus-visible {
