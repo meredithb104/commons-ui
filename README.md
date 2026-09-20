@@ -29,9 +29,31 @@ The demo content is real civic work: a Know Your Rights guide with a plain-langu
 | `ProgressMeter` | `role="progressbar"` | `aria-valuetext` in human words ("1,387 of 2,000 signatures"); fill/track contrast enforced by tokens |
 | `Button` | `<button>` | 44px target; `loading` uses `aria-busy` + `aria-disabled` so focus is never lost |
 | `Alert` | `role="alert"` / `role="status"` | Errors interrupt, everything else waits; tone is written as text |
-| `MenuButton` | [APG button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) ("hamburger" toggle) | Named by its own visible text, not an icon alone; `aria-expanded`/`aria-controls`; 44px target; same spec as the portfolio site's hamburger, contrast-checked by Playwright |
+| `MenuButton` and `<cui-menu-button>` | [APG button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) ("hamburger" toggle) | Named by its own visible text, not an icon alone; `aria-expanded`/`aria-controls`; Escape and outside-click close; 44px target; expanded is bold as well as tinted, with the width reserved so nothing shifts; a `quiet` variant sits in a row of links. The same component ships as a framework-free custom element sharing one stylesheet, and the portfolio site uses it for both of its menus |
 | `LiveRegionProvider` / `useAnnouncer` | live regions | Mounted empty at app start (regions that mount with content are silent); polite and assertive channels |
 | `SkipLink`, `VisuallyHidden` | utilities | 2.4.1 bypass blocks; screen-reader-only text |
+
+## Without React
+
+`MenuButton` also ships as `<cui-menu-button>`, a light-DOM custom element with the same behaviour and the same stylesheet, for pages that run no framework. Install the repository and import the element and its styles:
+
+```bash
+npm install github:meredithb104/commons-ui
+```
+
+```html
+<link rel="stylesheet" href="commons-ui/styles/menu-button.css" />
+<cui-menu-button label="More information" controls="more-list" variant="quiet"></cui-menu-button>
+<ul id="more-list" hidden>…</ul>
+<script type="module">
+  import "commons-ui/element";
+  const button = document.querySelector("cui-menu-button");
+  const list = document.getElementById("more-list");
+  button.addEventListener("cui-open-change", (e) => { list.hidden = !e.detail.open; });
+</script>
+```
+
+The element renders a real `<button>` named by `label`, keeps `aria-expanded` and `aria-controls` current, reflects the `open` attribute and property, closes on Escape (returning focus) and on a pointer down outside itself and the element named by `controls`, and dispatches `cui-open-change` when the user changes it. It never shows or hides the panel itself; the consumer does that, so the panel can be anything. The stylesheet uses the same token names the library's `tokens.css` defines, so a consumer either loads `commons-ui/styles/tokens.css` or defines the same tokens, as the portfolio site does with its own contrast-checked build.
 
 ## Tokens
 
