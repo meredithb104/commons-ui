@@ -3,6 +3,21 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    ".": "./src/lib/index.ts",
+    "./element": "./src/lib/menu-button.element.ts",
+    "./styles/menu-button.css": "./src/styles/menu-button.css",
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/lib",
+    "src/styles",
+    "tokens",
+    "scripts/build-tokens.mjs",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "tokens": "node scripts/build-tokens.mjs",
     "dev": "npm run tokens && vite",
@@ -38,7 +53,7 @@
     "vitest": "^5.0.1",
     "vitest-axe": "^0.1.0"
   },
-  "description": "Accessible-by-default React components for organizers, advocates, and mutual aid networks.",
+  "description": "Accessible-by-default React components for organizers, advocates, and mutual aid networks. The MenuButton also ships as a framework-free custom element.",
   "license": "MIT",
   "author": "Meredith Boyce",
   "repository": {

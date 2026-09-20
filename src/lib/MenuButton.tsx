@@ -2,6 +2,8 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { cx } from "./utils";
 
 export type MenuButtonProps = {
+  /** "quiet": no box, for a button that sits in a row of links; state is a tint plus bold text. */
+  variant?: "default" | "quiet";
   /** Whether the menu it controls is open. */
   open: boolean;
   onOpenChange: (next: boolean) => void;
@@ -27,11 +29,14 @@ export type MenuButtonProps = {
  * - 44px minimum target (WCAG 2.5.8 Target Size), well past the 24px minimum, and the shared focus ring.
  * - Expanded state is never color-only (1.4.1): border/text switch to primary color AND the text goes
  *   bold, matching how Tabs marks its selected tab. aria-expanded carries the state for assistive tech.
+ *   The label reserves its bold width, so the change of weight moves nothing beside the button.
+ * - The same component exists without React as <cui-menu-button> (menu-button.element.ts), sharing
+ *   this stylesheet, for pages that ship no framework.
  * - While open, Escape closes and returns focus here; a pointerdown outside both this button and the
  *   element named by `controls` closes too, without stealing focus from wherever the click landed.
  */
 export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(function MenuButton(
-  { open, onOpenChange, label, controls, id, className },
+  { open, onOpenChange, label, controls, id, className, variant = "default" },
   forwardedRef,
 ) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -70,7 +75,7 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(functio
       ref={buttonRef}
       type="button"
       id={id}
-      className={cx("cui-menu-button", className)}
+      className={cx("cui-menu-button", variant === "quiet" && "cui-menu-button--quiet", className)}
       aria-expanded={open}
       aria-controls={controls}
       onClick={() => onOpenChange(!open)}
@@ -87,7 +92,9 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(functio
       >
         <path d="M3 5h14M3 10h14M3 15h14" />
       </svg>
-      {label}
+      <span className="cui-menu-button__label" data-label={label}>
+        {label}
+      </span>
     </button>
   );
 });

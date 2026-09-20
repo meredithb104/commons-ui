@@ -1,3 +1,5 @@
+@import "./menu-button.css";
+
 /* Component styles. Only tokens, no raw values, so themes and forced-colors just work. */
 
 /* ---------- utilities ---------- */
@@ -341,48 +343,6 @@
   .cui-switch__thumb {
     background: Canvas;
     border: 1px solid ButtonText;
-  }
-}
-
-/* ---------- menu button ---------- */
-/* Same spec as the "Menu" / "More information" hamburger buttons on meredithb104.github.io:
-   44px target, surface background, border/text switch to primary while expanded, a tinted
-   hover/focus-visible state that keeps text at the page's own text color for contrast. */
-.cui-menu-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--size-target);
-  padding: var(--space-2) var(--space-4);
-  border: var(--size-border-strong) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background-color var(--motion-duration-fast) var(--motion-easing-standard),
-    border-color var(--motion-duration-fast) var(--motion-easing-standard),
-    color var(--motion-duration-fast) var(--motion-easing-standard);
-}
-.cui-menu-button[aria-expanded="true"] {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-bold);
-}
-.cui-menu-button:hover,
-.cui-menu-button:focus-visible {
-  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-surface));
-  border-color: var(--color-primary);
-  color: var(--color-text);
-}
-@media (forced-colors: active) {
-  .cui-menu-button {
-    border-color: ButtonText;
-  }
-  .cui-menu-button[aria-expanded="true"] {
-    border-color: Highlight;
-    color: Highlight;
   }
 }
 
