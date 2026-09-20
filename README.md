@@ -29,6 +29,7 @@ The demo content is real civic work: a Know Your Rights guide with a plain-langu
 | `ProgressMeter` | `role="progressbar"` | `aria-valuetext` in human words ("1,387 of 2,000 signatures"); fill/track contrast enforced by tokens |
 | `Button` | `<button>` | 44px target; `loading` uses `aria-busy` + `aria-disabled` so focus is never lost |
 | `Alert` | `role="alert"` / `role="status"` | Errors interrupt, everything else waits; tone is written as text |
+| `MenuButton` | [APG button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) ("hamburger" toggle) | Named by its own visible text, not an icon alone; `aria-expanded`/`aria-controls`; 44px target; same spec as the portfolio site's hamburger, contrast-checked by Playwright |
 | `LiveRegionProvider` / `useAnnouncer` | live regions | Mounted empty at app start (regions that mount with content are silent); polite and assertive channels |
 | `SkipLink`, `VisuallyHidden` | utilities | 2.4.1 bypass blocks; screen-reader-only text |
 
@@ -60,6 +61,7 @@ Contrast check failed:
 npm install
 npm run dev        # compiles tokens, starts Vite
 npm test           # compiles tokens, runs Vitest + Testing Library + axe-core
+npm run test:e2e   # builds, then runs Playwright against the built demo page
 npm run build      # tokens -> typecheck -> production build
 ```
 
@@ -71,6 +73,8 @@ Each component has:
 - **an axe-core scan** asserting zero violations
 
 axe's `color-contrast` rule is disabled in jsdom (no layout, no paint) because contrast is already enforced upstream by the token build. That is the right place for it: a contrast failure is a design-token bug, not a component bug.
+
+`e2e/contrast.spec.ts` (Playwright, real Chromium) checks what jsdom can't: rendered contrast. It proves the focus ring reaches 3:1 against whatever it actually borders for every focusable element, and that `MenuButton` keeps its text at 4.5:1 and its border at 3:1 in default, hover, and expanded states, across light and dark. Ported from the equivalent check on [meredithb104.github.io](https://github.com/meredithb104/meredithb104.github.io), which `MenuButton`'s spec (44px target, surface/border/text tokens, expanded-state color) matches.
 
 ## What's not here yet
 

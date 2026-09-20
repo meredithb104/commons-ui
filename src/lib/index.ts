@@ -4,6 +4,7 @@ export { Button, type ButtonProps } from "./Button";
 export { Dialog } from "./Dialog";
 export { FormErrorSummary, type FormError } from "./FormErrorSummary";
 export { LiveRegionProvider, useAnnouncer } from "./LiveRegion";
+export { MenuButton, type MenuButtonProps } from "./MenuButton";
 export { ProgressMeter } from "./ProgressMeter";
 export { Switch } from "./Switch";
 export { Tabs, type Tab } from "./Tabs";

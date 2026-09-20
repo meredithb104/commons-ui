@@ -11,6 +11,7 @@ import {
   Dialog,
   FormErrorSummary,
   LiveRegionProvider,
+  MenuButton,
   ProgressMeter,
   Switch,
   Tabs,
@@ -227,6 +228,31 @@ describe("Switch", () => {
 
   it("has no axe violations", async () => {
     const { container } = render(<Switch checked onChange={() => {}} label="Plain language" description="Shorter sentences." />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe("MenuButton", () => {
+  it("names itself from `label`, exposes expanded state, and toggles with the keyboard", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return <MenuButton open={open} onOpenChange={setOpen} label="Main menu" controls="site-nav" />;
+    }
+    render(<Harness />);
+    const btn = screen.getByRole("button", { name: "Main menu" });
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+    expect(btn).toHaveAttribute("aria-controls", "site-nav");
+    btn.focus();
+    await userEvent.keyboard(" ");
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    await userEvent.keyboard("{Enter}");
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("has no axe violations open or closed", async () => {
+    const { container, rerender } = render(<MenuButton open={false} onOpenChange={() => {}} label="Main menu" />);
+    expect(await axe(container)).toHaveNoViolations();
+    rerender(<MenuButton open onOpenChange={() => {}} label="Main menu" />);
     expect(await axe(container)).toHaveNoViolations();
   });
 });
