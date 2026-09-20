@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { cx } from "./utils";
 
 export type MenuButtonProps = {
@@ -27,14 +27,47 @@ export type MenuButtonProps = {
  * - 44px minimum target (WCAG 2.5.8 Target Size), well past the 24px minimum, and the shared focus ring.
  * - Expanded state is never color-only (1.4.1): border/text switch to primary color AND the text goes
  *   bold, matching how Tabs marks its selected tab. aria-expanded carries the state for assistive tech.
+ * - While open, Escape closes and returns focus here; a pointerdown outside both this button and the
+ *   element named by `controls` closes too, without stealing focus from wherever the click landed.
  */
 export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(function MenuButton(
   { open, onOpenChange, label, controls, id, className },
-  ref,
+  forwardedRef,
 ) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  useImperativeHandle(forwardedRef, () => buttonRef.current as HTMLButtonElement, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const isInside = (target: EventTarget | null): boolean => {
+      if (!(target instanceof Node)) return false;
+      if (buttonRef.current?.contains(target)) return true;
+      const panel = controls ? document.getElementById(controls) : null;
+      return panel?.contains(target) ?? false;
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      onOpenChange(false);
+      buttonRef.current?.focus();
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!isInside(event.target)) onOpenChange(false);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [open, onOpenChange, controls]);
+
   return (
     <button
-      ref={ref}
+      ref={buttonRef}
       type="button"
       id={id}
       className={cx("cui-menu-button", className)}

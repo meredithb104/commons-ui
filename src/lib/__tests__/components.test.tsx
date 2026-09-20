@@ -255,6 +255,36 @@ describe("MenuButton", () => {
     rerender(<MenuButton open onOpenChange={() => {}} label="Main menu" />);
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("closes on Escape (returning focus to the button) and on an outside click, but not a click inside the panel", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <MenuButton open={open} onOpenChange={setOpen} label="Main menu" controls="panel" />
+          <nav id="panel" hidden={!open}>
+            <a href="#a">Link</a>
+          </nav>
+          <button>Outside</button>
+        </>
+      );
+    }
+    render(<Harness />);
+    const btn = screen.getByRole("button", { name: "Main menu" });
+
+    await userEvent.click(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    await userEvent.keyboard("{Escape}");
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+    expect(btn).toHaveFocus();
+
+    await userEvent.click(btn);
+    await userEvent.click(screen.getByRole("link", { name: "Link" }));
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+
+    await userEvent.click(screen.getByRole("button", { name: "Outside" }));
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+  });
 });
 
 describe("ProgressMeter", () => {
