@@ -334,6 +334,23 @@ describe("MenuButton", () => {
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it("an outside click while already closed does not call onOpenChange", async () => {
+    const onOpenChange = vi.fn();
+    function Harness() {
+      return (
+        <>
+          <MenuButton open={false} onOpenChange={onOpenChange} label="Main menu" />
+          <button>Outside</button>
+        </>
+      );
+    }
+    render(<Harness />);
+    // The outside-click listener is only attached while open, so with the menu
+    // already closed there's nothing to close and onOpenChange must stay silent.
+    await userEvent.click(screen.getByRole("button", { name: "Outside" }));
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
 });
 
 describe("ProgressMeter", () => {
