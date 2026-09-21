@@ -6,6 +6,10 @@
  * with aria-expanded for state and aria-controls naming the panel it opens.
  * While open, Escape closes and returns focus to the button, and a pointer
  * down outside the button and its panel closes without stealing focus.
+ * Opening also moves focus to the first focusable element inside `controls` —
+ * JAWS in Edge/Chrome doesn't reliably notice a region that goes from hidden
+ * to visible until real DOM focus lands inside it, so a sighted-only Tab
+ * check can pass while the panel stays unreachable by keyboard for JAWS users.
  * Styles come from `styles/menu-button.css`, shared with the React version.
  *
  *   <cui-menu-button label="More information" controls="more-list"></cui-menu-button>
@@ -33,6 +37,7 @@ export class CuiMenuButton extends HTMLElement {
 
   private button: HTMLButtonElement | null = null;
   private label: HTMLSpanElement | null = null;
+  private wasOpen = false;
 
   connectedCallback(): void {
     if (!this.button) this.render();
@@ -84,8 +89,30 @@ export class CuiMenuButton extends HTMLElement {
     else this.button.removeAttribute("aria-controls");
     this.button.classList.toggle("cui-menu-button--quiet", this.getAttribute("variant") === "quiet");
     this.button.setAttribute("aria-expanded", this.open ? "true" : "false");
-    if (this.open) this.listen();
-    else this.unlisten();
+    if (this.open) {
+      this.listen();
+      if (!this.wasOpen) this.focusFirst();
+    } else {
+      this.unlisten();
+    }
+    this.wasOpen = this.open;
+  }
+
+  /**
+   * JAWS in Edge/Chrome doesn't reliably notice a region that goes from hidden to
+   * visible until real DOM focus lands inside it — Tab alone can leave its virtual
+   * buffer stale, so the panel is visible but unreachable. Moving focus in on open
+   * forces the resync (APG's Menu Button pattern, not Disclosure).
+   */
+  private focusFirst(): void {
+    const controls = this.getAttribute("controls");
+    const panel = controls ? document.getElementById(controls) : null;
+    // Not our job to reveal the panel — if the consumer hasn't (yet), there's nothing focusable there.
+    if (!panel || panel.hidden) return;
+    const first = panel.querySelector<HTMLElement>(
+      'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])',
+    );
+    first?.focus();
   }
 
   /** The user asked for a change: reflect it, then tell the consumer. */

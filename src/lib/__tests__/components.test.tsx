@@ -286,6 +286,48 @@ describe("MenuButton", () => {
     expect(btn).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("opening moves focus into the panel, onto its first focusable element", async () => {
+    // Not just nice-to-have: JAWS in Edge/Chrome doesn't reliably notice a region that
+    // goes from hidden to visible until real focus lands inside it (reported live, by a
+    // JAWS user, against this exact component — Tab alone left the panel unreachable).
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <MenuButton open={open} onOpenChange={setOpen} label="Main menu" controls="panel" />
+          <nav id="panel" hidden={!open}>
+            <a href="#a">Link</a>
+          </nav>
+        </>
+      );
+    }
+    render(<Harness />);
+    await userEvent.click(screen.getByRole("button", { name: "Main menu" }));
+    expect(screen.getByRole("link", { name: "Link" })).toHaveFocus();
+  });
+
+  it("doesn't try to focus into a panel the consumer hasn't revealed yet, or one that doesn't exist", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <MenuButton open={open} onOpenChange={setOpen} label="Main menu" controls="panel" />
+          <nav id="panel" hidden>
+            <a href="#a">Link</a>
+          </nav>
+        </>
+      );
+    }
+    render(<Harness />);
+    const btn = screen.getByRole("button", { name: "Main menu" });
+    await userEvent.click(btn);
+    expect(btn).toHaveFocus();
+
+    render(<MenuButton open={false} onOpenChange={() => {}} label="Other menu" controls="missing" />);
+    await userEvent.click(screen.getByRole("button", { name: "Other menu" }));
+    expect(screen.getByRole("button", { name: "Other menu" })).toHaveFocus();
+  });
+
   it("Escape returns focus to the button even when focus was inside the panel, not on the button", async () => {
     function Harness() {
       const [open, setOpen] = useState(false);

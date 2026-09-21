@@ -60,6 +60,23 @@ describe("<cui-menu-button>", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it("opening moves focus into the panel once the consumer reveals it, onto its first focusable element", () => {
+    // Not just nice-to-have: JAWS in Edge/Chrome doesn't reliably notice a region that
+    // goes from hidden to visible until real focus lands inside it (reported live, by a
+    // JAWS user, against the React version of this same component).
+    const { host, panel } = mount();
+    panel.hidden = false;
+    host.open = true;
+    expect(document.activeElement).toBe(panel.querySelector("a"));
+  });
+
+  it("doesn't try to focus into a panel the consumer hasn't revealed yet", () => {
+    const { host, button } = mount();
+    button.focus();
+    host.open = true;
+    expect(document.activeElement).toBe(button);
+  });
+
   it("closes on Escape from anywhere and returns focus to the button", async () => {
     const { host, button } = mount();
     host.open = true;

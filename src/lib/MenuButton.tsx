@@ -34,6 +34,10 @@ export type MenuButtonProps = {
  *   this stylesheet, for pages that ship no framework.
  * - While open, Escape closes and returns focus here; a pointerdown outside both this button and the
  *   element named by `controls` closes too, without stealing focus from wherever the click landed.
+ * - Opening moves focus to the first focusable element inside `controls` (APG's Menu Button pattern,
+ *   not Disclosure). This isn't optional polish: JAWS in Edge/Chrome doesn't reliably notice a region
+ *   that goes from `hidden` to visible until real DOM focus lands inside it — Tab alone can leave its
+ *   virtual buffer stale, so the panel is visible but unreachable. Moving focus in forces the resync.
  */
 export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(function MenuButton(
   { open, onOpenChange, label, controls, id, className, variant = "default" },
@@ -69,6 +73,17 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(functio
       document.removeEventListener("pointerdown", onPointerDown);
     };
   }, [open, onOpenChange, controls]);
+
+  useEffect(() => {
+    if (!open || !controls) return;
+    const panel = document.getElementById(controls);
+    // Not our job to reveal the panel — if the consumer hasn't (yet), there's nothing focusable there.
+    if (!panel || panel.hidden) return;
+    const first = panel.querySelector<HTMLElement>(
+      'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])',
+    );
+    first?.focus();
+  }, [open, controls]);
 
   return (
     <button
