@@ -12,6 +12,10 @@ export type Tab = {
 /**
  * Tabs, per the WAI-ARIA Authoring Practices pattern with automatic activation.
  * - role=tablist / tab / tabpanel, aria-selected, aria-controls, aria-labelledby
+ * - Each tab also gets an explicit aria-label mirroring its (string) visible text. Chromium's own
+ *   accessibility tree already computes the name correctly from content alone, but JAWS's element-list
+ *   dialogs (e.g. its "list of buttons") can come back blank for a role-overridden <button> whose name
+ *   is content-only — reported live. aria-label gives it an attribute to read instead of relying on that.
  * - Roving tabindex: only the active tab is in the Tab order; arrows move between tabs
  * - Left/Right (or Up/Down when `orientation="vertical"`), Home, End
  * - Each panel is focusable (tabIndex=0) so keyboard users can reach its content
@@ -73,6 +77,7 @@ export function Tabs({
               type="button"
               role="tab"
               id={`${baseId}-tab-${t.id}`}
+              aria-label={typeof t.label === "string" ? t.label : undefined}
               aria-selected={selected}
               aria-controls={`${baseId}-panel-${t.id}`}
               tabIndex={selected ? 0 : -1}

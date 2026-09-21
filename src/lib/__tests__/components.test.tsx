@@ -177,6 +177,16 @@ describe("Tabs", () => {
     const { container } = render(<Tabs label="Language" tabs={tabs} />);
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("carries an explicit aria-label mirroring each tab's visible text", () => {
+    // Content alone names it correctly in Chromium's own accessibility tree, but JAWS's
+    // element-list dialogs have been reported reading a role-overridden button's
+    // content-only name as blank. aria-label gives it an attribute to fall back to.
+    render(<Tabs label="Language" tabs={tabs} />);
+    expect(screen.getByRole("tab", { name: "English" })).toHaveAttribute("aria-label", "English");
+    expect(screen.getByRole("tab", { name: "Español" })).toHaveAttribute("aria-label", "Español");
+    expect(screen.getByRole("tab", { name: "Português" })).toHaveAttribute("aria-label", "Português");
+  });
 });
 
 describe("Dialog", () => {
