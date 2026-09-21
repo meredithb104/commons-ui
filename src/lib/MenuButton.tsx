@@ -26,6 +26,8 @@ export type MenuButtonProps = {
  * - Real <button type="button">, so it's focusable and works with Space/Enter with no extra key handling.
  * - The hamburger icon is aria-hidden; `label` is rendered as real text, so the name is never icon-only.
  * - aria-expanded reflects state; aria-controls (when given) points screen readers at the menu it opens.
+ * - aria-haspopup="menu" gives it the Name/Role/Value a screen reader needs to say what it is: JAWS
+ *   announces "menu button" plus "collapsed"/"expanded" from aria-expanded, not a plain, unlabeled "button".
  * - 44px minimum target (WCAG 2.5.8 Target Size), well past the 24px minimum, and the shared focus ring.
  * - Expanded state is never color-only (1.4.1): border/text switch to primary color AND the text goes
  *   bold, matching how Tabs marks its selected tab. aria-expanded carries the state for assistive tech.
@@ -91,6 +93,7 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(functio
       type="button"
       id={id}
       className={cx("cui-menu-button", variant === "quiet" && "cui-menu-button--quiet", className)}
+      aria-haspopup="menu"
       aria-expanded={open}
       aria-controls={controls}
       onClick={() => onOpenChange(!open)}

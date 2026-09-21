@@ -3,7 +3,9 @@
  *
  * The same component as `MenuButton.tsx`, for pages that ship no framework:
  * a real <button type="button"> in the light DOM, named by its visible text,
- * with aria-expanded for state and aria-controls naming the panel it opens.
+ * with aria-expanded for state, aria-controls naming the panel it opens, and
+ * aria-haspopup="menu" so a screen reader says "menu button" rather than a
+ * plain, unlabeled "button".
  * While open, Escape closes and returns focus to the button, and a pointer
  * down outside the button and its panel closes without stealing focus.
  * Opening also moves focus to the first focusable element inside `controls` —
@@ -71,6 +73,7 @@ export class CuiMenuButton extends HTMLElement {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "cui-menu-button";
+    button.setAttribute("aria-haspopup", "menu");
     button.innerHTML = `${ICON} <span class="cui-menu-button__label"></span>`;
     button.addEventListener("click", () => this.request(!this.open));
     this.label = button.querySelector("span");

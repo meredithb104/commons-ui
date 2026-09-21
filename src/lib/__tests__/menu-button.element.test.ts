@@ -31,6 +31,8 @@ describe("<cui-menu-button>", () => {
     expect(button.textContent?.trim()).toBe("Main menu");
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(button.getAttribute("aria-controls")).toBe("panel");
+    // JAWS reads this as "menu button" instead of a plain, unlabeled "button".
+    expect(button.getAttribute("aria-haspopup")).toBe("menu");
     expect(button.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
   });
 

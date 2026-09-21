@@ -242,6 +242,8 @@ describe("MenuButton", () => {
     const btn = screen.getByRole("button", { name: "Main menu" });
     expect(btn).toHaveAttribute("aria-expanded", "false");
     expect(btn).toHaveAttribute("aria-controls", "site-nav");
+    // JAWS reads this as "menu button" instead of a plain, unlabeled "button".
+    expect(btn).toHaveAttribute("aria-haspopup", "menu");
     btn.focus();
     await userEvent.keyboard(" ");
     expect(btn).toHaveAttribute("aria-expanded", "true");
