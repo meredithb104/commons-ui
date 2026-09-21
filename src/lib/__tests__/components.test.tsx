@@ -482,6 +482,31 @@ describe("Alert", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Error:");
     expect(screen.getByRole("status")).toHaveTextContent("Success:");
   });
+
+  it("with autoFocus, takes focus on mount — for when it replaces whatever had focus", () => {
+    // Reported live: a submit button unmounting into a plain success Alert dropped focus to
+    // the document with nothing to say where it went — JAWS's next stop was the page's own
+    // Menu button, nowhere near the result. autoFocus is how a consumer opts into fixing that.
+    render(
+      <Alert tone="success" title="Saved" autoFocus>
+        <p>Saved.</p>
+      </Alert>,
+    );
+    expect(screen.getByRole("status")).toHaveFocus();
+  });
+
+  it("without autoFocus, does not steal focus on mount", () => {
+    render(
+      <>
+        <button>Elsewhere</button>
+        <Alert tone="info" title="Note">
+          <p>Just a note.</p>
+        </Alert>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Elsewhere" })).not.toHaveFocus();
+    expect(document.body).toHaveFocus();
+  });
 });
 
 describe("LiveRegionProvider", () => {

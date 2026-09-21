@@ -219,7 +219,7 @@ function Petition() {
       </p>
       <ProgressMeter label="Signatures" value={count} max={goal} unit="signatures" />
       {signed ? (
-        <Alert tone="success" title="Your name was added">
+        <Alert tone="success" title="Your name was added" autoFocus>
           <p>We will email you when the city responds.</p>
         </Alert>
       ) : (
@@ -260,7 +260,7 @@ function MutualAidForm() {
     return (
       <section aria-labelledby="aid-h" className="section">
         <h2 id="aid-h">Mutual aid request</h2>
-        <Alert tone="success" title="Request sent">
+        <Alert tone="success" title="Request sent" autoFocus>
           <p>A neighbor will reach out within a day using the contact you gave us.</p>
         </Alert>
         <Button variant="secondary" onClick={() => { setSubmitted(false); setForm({ name: "", contact: "", need: "", canPickUp: false }); }}>
