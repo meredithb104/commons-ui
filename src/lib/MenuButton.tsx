@@ -1,6 +1,12 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { cx } from "./utils";
 
+const FOCUSABLE = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+
+function menuItems(panel: HTMLElement): HTMLElement[] {
+  return [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)];
+}
+
 export type MenuButtonProps = {
   /** "quiet": no box, for a button that sits in a row of links; state is a tint plus bold text. */
   variant?: "default" | "quiet";
@@ -40,6 +46,12 @@ export type MenuButtonProps = {
  *   not Disclosure). This isn't optional polish: JAWS in Edge/Chrome doesn't reliably notice a region
  *   that goes from `hidden` to visible until real DOM focus lands inside it — Tab alone can leave its
  *   virtual buffer stale, so the panel is visible but unreachable. Moving focus in forces the resync.
+ * - While open, Up/Down move between the panel's own focusable items, Home/End jump to the first/last,
+ *   wrapping at the ends — the rest of the Menu Button pattern that aria-haspopup="menu" promises.
+ *   For this to actually work with JAWS, the panel's items need a widget role (e.g. `role="menuitem"`
+ *   on each, `role="menu"` on their container) — JAWS only hands arrow keys to the page for elements
+ *   it treats as a real widget; plain links stay in its own browse-mode navigation. A `<ul role="menu">`
+ *   of `<li role="presentation"><a role="menuitem">` keeps the links real while adding that role.
  */
 export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(function MenuButton(
   { open, onOpenChange, label, controls, id, className, variant = "default" },
@@ -59,9 +71,38 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(functio
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      onOpenChange(false);
-      buttonRef.current?.focus();
+      if (event.key === "Escape") {
+        onOpenChange(false);
+        buttonRef.current?.focus();
+        return;
+      }
+      // Arrow/Home/End move between the menu's own items (APG Menu Button): declaring
+      // aria-haspopup="menu" on the button tells JAWS to expect this, and Up/Down are
+      // only ever handed to the page for elements JAWS treats as a real widget in the
+      // first place — this is the other half of that contract, not separate polish.
+      const panel = controls ? document.getElementById(controls) : null;
+      if (!panel) return;
+      const items = menuItems(panel);
+      const i = items.indexOf(document.activeElement as HTMLElement);
+      if (i === -1) return;
+      const go = (n: number) => {
+        event.preventDefault();
+        items[(n + items.length) % items.length]?.focus();
+      };
+      switch (event.key) {
+        case "ArrowDown":
+          go(i + 1);
+          break;
+        case "ArrowUp":
+          go(i - 1);
+          break;
+        case "Home":
+          go(0);
+          break;
+        case "End":
+          go(items.length - 1);
+          break;
+      }
     };
 
     const onPointerDown = (event: PointerEvent) => {
@@ -81,10 +122,7 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(functio
     const panel = document.getElementById(controls);
     // Not our job to reveal the panel — if the consumer hasn't (yet), there's nothing focusable there.
     if (!panel || panel.hidden) return;
-    const first = panel.querySelector<HTMLElement>(
-      'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])',
-    );
-    first?.focus();
+    menuItems(panel)[0]?.focus();
   }, [open, controls]);
 
   return (

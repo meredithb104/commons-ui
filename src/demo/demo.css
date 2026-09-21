@@ -27,9 +27,6 @@
   inset-block-start: calc(100% + var(--space-2));
   inset-inline-end: 0;
   z-index: 20;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
   min-inline-size: 12rem;
   padding: var(--space-2);
   background: var(--color-surface);
@@ -39,6 +36,16 @@
 }
 .site-nav[hidden] {
   display: none;
+}
+/* role="menu"/"menuitem" (on real <ul>/<li>/<a>) so JAWS treats arrow keys as widget
+   navigation and hands them to the page — MenuButton.tsx does the actual moving. */
+.site-nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 /* The whole row is the target (WCAG 2.5.8), not just the words, and it's what
    highlights on hover/focus — not only the text. Text stays the link color by

@@ -318,6 +318,53 @@ describe("MenuButton", () => {
     expect(screen.getByRole("link", { name: "Link" })).toHaveFocus();
   });
 
+  it("moves between the panel's items with Up/Down/Home/End, wrapping at the ends", async () => {
+    // The other half of aria-haspopup="menu": JAWS only hands arrow keys to the page for
+    // elements it treats as a real widget, which is why the recommended panel markup is
+    // role="menu"/"menuitem" — but the movement itself works on any focusable item.
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <MenuButton open={open} onOpenChange={setOpen} label="Main menu" controls="panel" />
+          <nav id="panel" hidden={!open}>
+            <ul role="menu">
+              <li role="presentation">
+                <a role="menuitem" href="#a">
+                  One
+                </a>
+              </li>
+              <li role="presentation">
+                <a role="menuitem" href="#b">
+                  Two
+                </a>
+              </li>
+              <li role="presentation">
+                <a role="menuitem" href="#c">
+                  Three
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </>
+      );
+    }
+    render(<Harness />);
+    await userEvent.click(screen.getByRole("button", { name: "Main menu" }));
+    const [one, two, three] = ["One", "Two", "Three"].map((n) => screen.getByRole("menuitem", { name: n }));
+    expect(one).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(two).toHaveFocus();
+    await userEvent.keyboard("{End}");
+    expect(three).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(one).toHaveFocus();
+    await userEvent.keyboard("{ArrowUp}");
+    expect(three).toHaveFocus();
+    await userEvent.keyboard("{Home}");
+    expect(one).toHaveFocus();
+  });
+
   it("doesn't try to focus into a panel the consumer hasn't revealed yet, or one that doesn't exist", async () => {
     function Harness() {
       const [open, setOpen] = useState(false);

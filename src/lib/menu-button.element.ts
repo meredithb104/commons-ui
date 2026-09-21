@@ -12,10 +12,19 @@
  * JAWS in Edge/Chrome doesn't reliably notice a region that goes from hidden
  * to visible until real DOM focus lands inside it, so a sighted-only Tab
  * check can pass while the panel stays unreachable by keyboard for JAWS users.
+ * While open, Up/Down move between the panel's own focusable items and
+ * Home/End jump to the first/last, wrapping at the ends — the rest of the
+ * Menu Button pattern that aria-haspopup="menu" promises. For this to work
+ * with JAWS, the panel's items need a widget role (JAWS only hands arrow
+ * keys to the page for elements it treats as a real widget): a `<ul
+ * role="menu">` of `<li role="presentation"><a role="menuitem">` keeps the
+ * links real while adding it.
  * Styles come from `styles/menu-button.css`, shared with the React version.
  *
  *   <cui-menu-button label="More information" controls="more-list"></cui-menu-button>
- *   <ul id="more-list" hidden>…</ul>
+ *   <ul id="more-list" role="menu" hidden>
+ *     <li role="presentation"><a role="menuitem" href="…">…</a></li>
+ *   </ul>
  *
  * Attributes
  *   label     the visible text and accessible name (required)
@@ -33,6 +42,12 @@
 
 const ICON =
   '<svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>';
+
+const FOCUSABLE = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+
+function menuItems(panel: HTMLElement): HTMLElement[] {
+  return [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)];
+}
 
 export class CuiMenuButton extends HTMLElement {
   static readonly observedAttributes = ["open", "label", "controls", "variant"];
@@ -108,14 +123,15 @@ export class CuiMenuButton extends HTMLElement {
    * forces the resync (APG's Menu Button pattern, not Disclosure).
    */
   private focusFirst(): void {
-    const controls = this.getAttribute("controls");
-    const panel = controls ? document.getElementById(controls) : null;
+    const panel = this.panel();
     // Not our job to reveal the panel — if the consumer hasn't (yet), there's nothing focusable there.
     if (!panel || panel.hidden) return;
-    const first = panel.querySelector<HTMLElement>(
-      'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])',
-    );
-    first?.focus();
+    menuItems(panel)[0]?.focus();
+  }
+
+  private panel(): HTMLElement | null {
+    const controls = this.getAttribute("controls");
+    return controls ? document.getElementById(controls) : null;
   }
 
   /** The user asked for a change: reflect it, then tell the consumer. */
@@ -143,16 +159,44 @@ export class CuiMenuButton extends HTMLElement {
   private isInside(target: EventTarget | null): boolean {
     if (!(target instanceof Node)) return false;
     if (this.contains(target)) return true;
-    const controls = this.getAttribute("controls");
-    const panel = controls ? document.getElementById(controls) : null;
-    return panel?.contains(target) ?? false;
+    return this.panel()?.contains(target) ?? false;
   }
 
   private readonly onKeydown = (event: KeyboardEvent): void => {
-    if (event.key !== "Escape" || !this.open) return;
-    event.preventDefault();
-    this.request(false);
-    this.button?.focus();
+    if (!this.open) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      this.request(false);
+      this.button?.focus();
+      return;
+    }
+    // Arrow/Home/End move between the menu's own items (APG Menu Button): declaring
+    // aria-haspopup="menu" tells JAWS to expect this, and Up/Down are only ever handed
+    // to the page for elements JAWS treats as a real widget — the other half of that
+    // contract, not separate polish.
+    const panel = this.panel();
+    if (!panel) return;
+    const items = menuItems(panel);
+    const i = items.indexOf(document.activeElement as HTMLElement);
+    if (i === -1) return;
+    const go = (n: number) => {
+      event.preventDefault();
+      items[(n + items.length) % items.length]?.focus();
+    };
+    switch (event.key) {
+      case "ArrowDown":
+        go(i + 1);
+        break;
+      case "ArrowUp":
+        go(i - 1);
+        break;
+      case "Home":
+        go(0);
+        break;
+      case "End":
+        go(items.length - 1);
+        break;
+    }
   };
 
   private readonly onPointerDown = (event: PointerEvent): void => {

@@ -79,6 +79,35 @@ describe("<cui-menu-button>", () => {
     expect(document.activeElement).toBe(button);
   });
 
+  it("moves between the panel's items with Up/Down/Home/End, wrapping at the ends", async () => {
+    // The other half of aria-haspopup="menu": JAWS only hands arrow keys to the page for
+    // elements it treats as a real widget, which is why the recommended panel markup is
+    // role="menu"/"menuitem" — but the movement itself works on any focusable item.
+    document.body.innerHTML = `
+      <cui-menu-button label="Main menu" controls="panel"></cui-menu-button>
+      <nav id="panel">
+        <ul role="menu">
+          <li role="presentation"><a role="menuitem" href="#a">One</a></li>
+          <li role="presentation"><a role="menuitem" href="#b">Two</a></li>
+          <li role="presentation"><a role="menuitem" href="#c">Three</a></li>
+        </ul>
+      </nav>`;
+    const host = document.querySelector("cui-menu-button")! as CuiMenuButton;
+    const [one, two, three] = [...document.querySelectorAll<HTMLAnchorElement>('a[role="menuitem"]')];
+    host.open = true;
+    expect(document.activeElement).toBe(one);
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(two);
+    await userEvent.keyboard("{End}");
+    expect(document.activeElement).toBe(three);
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(one);
+    await userEvent.keyboard("{ArrowUp}");
+    expect(document.activeElement).toBe(three);
+    await userEvent.keyboard("{Home}");
+    expect(document.activeElement).toBe(one);
+  });
+
   it("closes on Escape from anywhere and returns focus to the button", async () => {
     const { host, button } = mount();
     host.open = true;
