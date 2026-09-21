@@ -21,6 +21,18 @@ import "./demo.css";
 
 type Theme = "auto" | "light" | "dark" | "high-contrast";
 
+/**
+ * A same-page link scrolls to its target, but headings aren't natively focusable, so the
+ * browser has nothing to focus there — the next Tab or arrow key then starts keyboard
+ * navigation over from the top of the document (reported live: it landed back on the Menu
+ * button). The target headings below carry tabIndex={-1} so this can actually focus them,
+ * same as the skip link's own target (<main id="main" tabIndex={-1}>).
+ */
+function focusHash(e: React.MouseEvent<HTMLAnchorElement>) {
+  const id = e.currentTarget.getAttribute("href")?.slice(1);
+  if (id) document.getElementById(id)?.focus();
+}
+
 export default function App() {
   return (
     <LiveRegionProvider>
@@ -49,27 +61,27 @@ function Page() {
             <nav id="site-nav" aria-label="Sections" className="site-nav" hidden={!navOpen}>
               <ul role="menu" aria-orientation="vertical">
                 <li role="presentation">
-                  <a role="menuitem" href="#kyr-h">
+                  <a role="menuitem" href="#kyr-h" onClick={focusHash}>
                     Know your rights
                   </a>
                 </li>
                 <li role="presentation">
-                  <a role="menuitem" href="#pet-h">
+                  <a role="menuitem" href="#pet-h" onClick={focusHash}>
                     Petition
                   </a>
                 </li>
                 <li role="presentation">
-                  <a role="menuitem" href="#aid-h">
+                  <a role="menuitem" href="#aid-h" onClick={focusHash}>
                     Mutual aid
                   </a>
                 </li>
                 <li role="presentation">
-                  <a role="menuitem" href="#rep-h">
+                  <a role="menuitem" href="#rep-h" onClick={focusHash}>
                     Report a barrier
                   </a>
                 </li>
                 <li role="presentation">
-                  <a role="menuitem" href="#res-h">
+                  <a role="menuitem" href="#res-h" onClick={focusHash}>
                     Resources
                   </a>
                 </li>
@@ -153,7 +165,9 @@ function KnowYourRights() {
   const { announce } = useAnnouncer();
   return (
     <section aria-labelledby="kyr-h" className="section">
-      <h2 id="kyr-h">Know your rights</h2>
+      <h2 id="kyr-h" tabIndex={-1}>
+        Know your rights
+      </h2>
       <p className="component-tag">
         Components: <code>Accordion</code>, <code>Switch</code>. Pattern: WAI-ARIA accordion, arrow keys move between
         headers, Home/End jump. Headings inside are real headings.
@@ -206,7 +220,9 @@ function Petition() {
 
   return (
     <section aria-labelledby="pet-h" className="section">
-      <h2 id="pet-h">Petition: fix the curb cuts on Washington Street</h2>
+      <h2 id="pet-h" tabIndex={-1}>
+        Petition: fix the curb cuts on Washington Street
+      </h2>
       <p className="component-tag">
         Components: <code>ProgressMeter</code>, <code>Button</code>, <code>useAnnouncer</code>. The meter is a real{" "}
         <code>progressbar</code> with human value text. The button uses <code>aria-busy</code> instead of{" "}
@@ -259,7 +275,9 @@ function MutualAidForm() {
   if (submitted) {
     return (
       <section aria-labelledby="aid-h" className="section">
-        <h2 id="aid-h">Mutual aid request</h2>
+        <h2 id="aid-h" tabIndex={-1}>
+          Mutual aid request
+        </h2>
         <Alert tone="success" title="Request sent" autoFocus>
           <p>A neighbor will reach out within a day using the contact you gave us.</p>
         </Alert>
@@ -272,7 +290,9 @@ function MutualAidForm() {
 
   return (
     <section aria-labelledby="aid-h" className="section">
-      <h2 id="aid-h">Mutual aid request</h2>
+      <h2 id="aid-h" tabIndex={-1}>
+        Mutual aid request
+      </h2>
       <p className="component-tag">
         Components: <code>TextField</code>, <code>FormErrorSummary</code>, <code>Switch</code>. Submit with fields empty:
         focus moves to an error summary whose links focus each field; each field is <code>aria-invalid</code> with its
@@ -331,7 +351,9 @@ function ReportBarrier() {
   const { announce } = useAnnouncer();
   return (
     <section aria-labelledby="rep-h" className="section">
-      <h2 id="rep-h">Report an access barrier</h2>
+      <h2 id="rep-h" tabIndex={-1}>
+        Report an access barrier
+      </h2>
       <p className="component-tag">
         Component: <code>Dialog</code> on the native <code>&lt;dialog&gt;</code> element. Focus moves in on open, the page
         behind is inert, Escape closes, and focus returns to the button that opened it.
@@ -373,7 +395,9 @@ function ReportBarrier() {
 function Resources() {
   return (
     <section aria-labelledby="res-h" className="section">
-      <h2 id="res-h">Get help in your language</h2>
+      <h2 id="res-h" tabIndex={-1}>
+        Get help in your language
+      </h2>
       <p className="component-tag">
         Component: <code>Tabs</code>. Roving tabindex, arrow keys, Home/End. Each tab and panel carries a{" "}
         <code>lang</code> attribute so screen readers switch pronunciation (WCAG 3.1.2).
