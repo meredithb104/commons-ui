@@ -1,0 +1,37 @@
+/* ---------- text field ---------- */
+.cui-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  max-width: 40rem;
+}
+.cui-field__label {
+  font-weight: var(--font-weight-bold);
+}
+.cui-field__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.cui-field__error {
+  margin: 0;
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+}
+.cui-field__input {
+  font: inherit;
+  padding: var(--space-2) var(--space-3);
+  min-height: var(--size-target);
+  border: var(--size-border-strong) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.cui-field.has-error .cui-field__input {
+  border-color: var(--color-error);
+  box-shadow: inset 0 0 0 1px var(--color-error);
+}
+.cui-field__required {
+  color: var(--color-error);
+}
