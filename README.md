@@ -21,39 +21,83 @@ The demo content is real civic work: a Know Your Rights guide with a plain-langu
 | Component | Pattern | What it gets right |
 | --- | --- | --- |
 | `Accordion` / `AccordionItem` | [APG accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/) | Real headings containing real buttons; `aria-expanded`/`aria-controls`; Up/Down/Home/End between headers |
-| `Tabs` | [APG tabs](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), automatic activation | Roving tabindex; arrow keys; per-tab `lang` so screen readers switch voice (WCAG 3.1.2); focusable panels |
+| `Tabs` and `<cui-tabs>` | [APG tabs](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), automatic activation | Roving tabindex; arrow keys; per-tab `lang` so screen readers switch voice (WCAG 3.1.2); focusable panels |
 | `Dialog` | native `<dialog>` | Focus in on open, back to opener on close (2.4.3); labelled by title; backdrop click and Escape close |
 | `Switch` | [APG switch](https://www.w3.org/WAI/ARIA/apg/patterns/switch/) | `role="switch"` on a real button; visible On/Off text (1.4.1); Space/Enter |
-| `TextField` (+ `multiline`) | labelled input | `aria-describedby` chains hint then error; `aria-invalid`; required announced in text, not just `*` |
+| `TextField` (+ `multiline`) and `<cui-text-field>` | labelled input | `aria-describedby` chains hint then error; `aria-invalid`; required announced in text, not just `*` |
 | `FormErrorSummary` | [GOV.UK error summary](https://design-system.service.gov.uk/components/error-summary/) | `role="alert"`, takes focus on submit, each error links to and focuses its field (3.3.1, 3.3.3) |
 | `ProgressMeter` | `role="progressbar"` | `aria-valuetext` in human words ("1,387 of 2,000 signatures"); fill/track contrast enforced by tokens |
 | `Button` | `<button>` | 44px target; `loading` uses `aria-busy` + `aria-disabled` so focus is never lost |
-| `Alert` | `role="alert"` / `role="status"` | Errors interrupt, everything else waits; tone is written as text |
-| `MenuButton` and `<cui-menu-button>` | [APG button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) ("hamburger" toggle) | Named by its own visible text, not an icon alone; `aria-expanded`/`aria-controls`; Escape and outside-click close; 44px target; expanded is bold as well as tinted, with the width reserved so nothing shifts; a `quiet` variant sits in a row of links. The same component ships as a framework-free custom element sharing one stylesheet, and the portfolio site uses it for both of its menus |
-| `LiveRegionProvider` / `useAnnouncer` | live regions | Mounted empty at app start (regions that mount with content are silent); polite and assertive channels |
+| `Alert` and `<cui-alert>` | `role="alert"` / `role="status"` | Errors interrupt, everything else waits; tone is written as text |
+| `MenuButton` and `<cui-menu-button>` | [APG button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) ("hamburger" toggle) | Named by its own visible text, not an icon alone; `aria-expanded`/`aria-controls`; Escape and outside-click close; 44px target; expanded is bold as well as tinted, with the width reserved so nothing shifts; a `quiet` variant sits in a row of links. The same component ships as a framework-free custom element sharing one stylesheet |
+| `LiveRegionProvider` / `useAnnouncer` and `<cui-live-region>` / `announce()` | live regions | Mounted empty at app start (regions that mount with content are silent); polite and assertive channels |
 | `SkipLink`, `VisuallyHidden` | utilities | 2.4.1 bypass blocks; screen-reader-only text |
 
 ## Without React
 
-`MenuButton` also ships as `<cui-menu-button>`, a light-DOM custom element with the same behaviour and the same stylesheet, for pages that run no framework. Install the repository and import the element and its styles:
+Five of the patterns also ship as light-DOM custom elements with the same behaviour and the same stylesheets, for pages that run no framework: `<cui-menu-button>`, `<cui-tabs>`, `<cui-text-field>`, `<cui-alert>`, and `<cui-live-region>` with its `announce()` function. Install the repository, load the styles you use, and import the elements:
 
 ```bash
 npm install github:meredithb104/commons-ui
 ```
 
 ```html
-<link rel="stylesheet" href="commons-ui/styles/menu-button.css" />
+<link rel="stylesheet" href="commons-ui/styles/components.css" />
+<script type="module">import "commons-ui/element";</script>
+```
+
+`components.css` pulls in every stylesheet; `commons-ui/styles/{menu-button,tabs,text-field,alert,button,utilities}.css` load one at a time. The stylesheets use the token names the library's `tokens.css` defines, so a consumer either loads `commons-ui/styles/tokens.css` or defines the same tokens, as the portfolio site does with its own contrast-checked build. Each element renders real HTML into the light DOM, so page styles, `lang`, and assistive technology see ordinary elements. Single elements import as `commons-ui/element/tabs` and so on.
+
+**Menu button**
+
+```html
 <cui-menu-button label="More information" controls="more-list" variant="quiet"></cui-menu-button>
 <ul id="more-list" hidden>…</ul>
 <script type="module">
-  import "commons-ui/element";
   const button = document.querySelector("cui-menu-button");
   const list = document.getElementById("more-list");
   button.addEventListener("cui-open-change", (e) => { list.hidden = !e.detail.open; });
 </script>
 ```
 
-The element renders a real `<button>` named by `label`, keeps `aria-expanded` and `aria-controls` current, reflects the `open` attribute and property, closes on Escape (returning focus) and on a pointer down outside itself and the element named by `controls`, and dispatches `cui-open-change` when the user changes it. It never shows or hides the panel itself; the consumer does that, so the panel can be anything. The stylesheet uses the same token names the library's `tokens.css` defines, so a consumer either loads `commons-ui/styles/tokens.css` or defines the same tokens, as the portfolio site does with its own contrast-checked build.
+The element renders a real `<button>` named by `label`, keeps `aria-expanded` and `aria-controls` current, reflects the `open` attribute and property, closes on Escape (returning focus) and on a pointer down outside itself and the element named by `controls`, and dispatches `cui-open-change` when the user changes it. It never shows or hides the panel itself; the consumer does that, so the panel can be anything.
+
+**Tabs**
+
+```html
+<cui-tabs label="Guide sections">
+  <ul data-tabs>
+    <li><a href="#rights">Your rights</a></li>
+    <li><a href="#derechos" lang="es">Tus derechos</a></li>
+  </ul>
+  <section id="rights"><h3 data-panel-heading>Your rights</h3>…</section>
+  <section id="derechos">…</section>
+</cui-tabs>
+```
+
+Progressive: the authored markup is in-page links and the sections they name, which works as plain HTML. With script, the list becomes a `role="tablist"` of real `<button role="tab">`s (one tab stop; Left/Right or, with `orientation="vertical"`, Up/Down move and select; Home/End jump), each section becomes a focusable `role="tabpanel"` labelled by its tab, a `data-panel-heading` is removed because the tab now names the panel, a link's `lang` is carried to its tab and panel, and a matching URL fragment opens that panel on load. `cui-tab-change` reports `{ id }` of the panel shown.
+
+**Text field**
+
+```html
+<cui-text-field label="Email" hint="We reply within a day" name="email" type="email" required></cui-text-field>
+```
+
+Renders the labelled input pattern: a visible `<label>` associated by id, hint and error joined through `aria-describedby` in reading order, `aria-invalid` while the `error` attribute or property holds a message (prefixed "Error:" for screen readers), and required said in text. `multiline` renders a `<textarea>`; `input`, `value`, and `error` are properties.
+
+**Alert and live region**
+
+```html
+<cui-alert tone="error" title="Check the form">Two fields need attention.</cui-alert>
+<cui-alert tone="success">Saved.</cui-alert>
+<cui-live-region></cui-live-region>
+<script type="module">
+  import { announce } from "commons-ui/element";
+  announce("Showing 2 of 5 projects");
+</script>
+```
+
+`tone="error"` renders `role="alert"`; every other tone renders `role="status"`, and the tone is written as text so nothing rests on colour alone. The live region mounts one polite and one assertive region, empty, and `announce()` clears the region before setting the text 30 ms later so an identical message is heard again; it creates the element if the page has none.
 
 ## Tokens
 

@@ -5,7 +5,19 @@
   "type": "module",
   "exports": {
     ".": "./src/lib/index.ts",
-    "./element": "./src/lib/menu-button.element.ts",
+    "./element": "./src/lib/elements.ts",
+    "./elements": "./src/lib/elements.ts",
+    "./element/menu-button": "./src/lib/menu-button.element.ts",
+    "./element/tabs": "./src/lib/tabs.element.ts",
+    "./element/text-field": "./src/lib/text-field.element.ts",
+    "./element/live-region": "./src/lib/live-region.element.ts",
+    "./element/alert": "./src/lib/alert.element.ts",
+    "./styles/components.css": "./src/styles/components.css",
+    "./styles/utilities.css": "./src/styles/utilities.css",
+    "./styles/button.css": "./src/styles/button.css",
+    "./styles/text-field.css": "./src/styles/text-field.css",
+    "./styles/tabs.css": "./src/styles/tabs.css",
+    "./styles/alert.css": "./src/styles/alert.css",
     "./styles/menu-button.css": "./src/styles/menu-button.css",
     "./styles/tokens.css": "./src/styles/tokens.css",
     "./package.json": "./package.json"
@@ -53,7 +65,7 @@
     "vitest": "^5.0.1",
     "vitest-axe": "^0.1.0"
   },
-  "description": "Accessible-by-default React components for organizers, advocates, and mutual aid networks. The MenuButton also ships as a framework-free custom element.",
+  "description": "Accessible-by-default components for organizers, advocates, and mutual aid networks: React components, and the same patterns as framework-free custom elements sharing one stylesheet.",
   "license": "MIT",
   "author": "Meredith Boyce",
   "repository": {
