@@ -6,7 +6,12 @@ import { cx, useStableId } from "./utils";
  * - role="switch" with aria-checked on a real <button>
  * - visible label associated by id; label click toggles
  * - Space and Enter toggle (native button behaviour)
- * - state is also shown as text ("On"/"Off") so it never relies on color alone (WCAG 1.4.1)
+ * - state is also shown as text ("On"/"Off") so it never relies on color alone (WCAG 1.4.1) — and
+ *   that text is folded into the accessible name via aria-labelledby (pointing at the label AND
+ *   the state span), so the name itself is "Plain language Off"/"Plain language On", not just
+ *   "Plain language" with the state left to leak out as a separate, stray value. Confirmed via
+ *   Playwright's aria snapshot: without this, Chromium read the button as `[checked]: "On"` —
+ *   an inappropriate Value for 4.1.2, on top of the proper checked state rather than folded in.
  */
 export function Switch({
   checked,
@@ -29,6 +34,7 @@ export function Switch({
 }) {
   const id = useStableId("switch", providedId);
   const labelId = `${id}-label`;
+  const stateId = `${id}-state`;
   const descId = `${id}-desc`;
 
   return (
@@ -48,7 +54,7 @@ export function Switch({
         role="switch"
         id={id}
         aria-checked={checked}
-        aria-labelledby={labelId}
+        aria-labelledby={`${labelId} ${stateId}`}
         aria-describedby={description ? descId : undefined}
         className="cui-switch__control"
         onClick={() => onChange(!checked)}
@@ -56,7 +62,9 @@ export function Switch({
         <span className="cui-switch__track" aria-hidden="true">
           <span className="cui-switch__thumb" />
         </span>
-        <span className="cui-switch__state">{checked ? onText : offText}</span>
+        <span className="cui-switch__state" id={stateId}>
+          {checked ? onText : offText}
+        </span>
       </button>
     </div>
   );

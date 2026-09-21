@@ -221,19 +221,21 @@ describe("Dialog", () => {
 });
 
 describe("Switch", () => {
-  it("is a switch with visible state text and toggles with Space", async () => {
+  it("is a switch whose accessible name folds in the state, and toggles with Space", async () => {
+    // The state text is part of the name (via aria-labelledby on both the label and state
+    // spans), not just visible-but-unlabelled: the name itself is "Plain language Off" /
+    // "Plain language On", so it's never left to leak out as a separate, stray value.
     function Harness() {
       const [on, setOn] = useState(false);
       return <Switch checked={on} onChange={setOn} label="Plain language" />;
     }
     render(<Harness />);
-    const sw = screen.getByRole("switch", { name: "Plain language" });
+    const sw = screen.getByRole("switch", { name: "Plain language Off" });
     expect(sw).toHaveAttribute("aria-checked", "false");
-    expect(sw).toHaveTextContent("Off");
     sw.focus();
     await userEvent.keyboard(" ");
     expect(sw).toHaveAttribute("aria-checked", "true");
-    expect(sw).toHaveTextContent("On");
+    expect(screen.getByRole("switch", { name: "Plain language On" })).toBe(sw);
   });
 
   it("has no axe violations", async () => {
