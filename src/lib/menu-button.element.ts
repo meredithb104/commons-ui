@@ -8,7 +8,9 @@
  * plain, unlabeled "button".
  * While open, Escape closes and returns focus to the button, and a pointer
  * down outside the button and its panel closes without stealing focus.
- * Opening also moves focus to the first focusable element inside `controls` —
+ * Opening also moves focus to the first focusable element inside `controls`,
+ * once the consumer has revealed it (whether before setting `open` or in the
+ * cui-open-change handler) —
  * JAWS in Edge/Chrome doesn't reliably notice a region that goes from hidden
  * to visible until real DOM focus lands inside it, so a sighted-only Tab
  * check can pass while the panel stays unreachable by keyboard for JAWS users.
@@ -45,8 +47,14 @@ const ICON =
 
 const FOCUSABLE = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
 
+/** Rendered, or at least not hidden: focus() on a display:none element does nothing, silently. */
+function isShown(el: HTMLElement): boolean {
+  if (el.hidden) return false;
+  return typeof el.checkVisibility === "function" ? el.checkVisibility() : true;
+}
+
 function menuItems(panel: HTMLElement): HTMLElement[] {
-  return [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)];
+  return [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(isShown);
 }
 
 export class CuiMenuButton extends HTMLElement {
@@ -125,7 +133,8 @@ export class CuiMenuButton extends HTMLElement {
   private focusFirst(): void {
     const panel = this.panel();
     // Not our job to reveal the panel — if the consumer hasn't (yet), there's nothing focusable there.
-    if (!panel || panel.hidden) return;
+    if (!panel || !isShown(panel)) return;
+    if (panel.contains(document.activeElement)) return;
     menuItems(panel)[0]?.focus();
   }
 
@@ -134,10 +143,17 @@ export class CuiMenuButton extends HTMLElement {
     return controls ? document.getElementById(controls) : null;
   }
 
-  /** The user asked for a change: reflect it, then tell the consumer. */
+  /**
+   * The user asked for a change: reflect it, tell the consumer, then move focus in. The order
+   * matters: most consumers reveal the panel in their cui-open-change handler, so the focus attempt
+   * that `sync` makes while reflecting finds the panel still hidden and does nothing; this second
+   * attempt runs after the handler and lands. (When the consumer had already revealed the panel,
+   * `sync` focused it and this is a no-op.)
+   */
   private request(open: boolean): void {
     this.open = open;
     this.dispatchEvent(new CustomEvent("cui-open-change", { bubbles: true, detail: { open } }));
+    if (open) this.focusFirst();
   }
 
   private listening = false;
