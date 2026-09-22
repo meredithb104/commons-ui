@@ -10,7 +10,7 @@ const axe = (el: Element) => rawAxe(el, { rules: { "color-contrast": { enabled: 
 function mount(attrs = 'label="Main menu" controls="panel"'): { host: CuiMenuButton; button: HTMLButtonElement; panel: HTMLElement } {
   document.body.innerHTML = `
     <cui-menu-button ${attrs}></cui-menu-button>
-    <nav id="panel" hidden><a href="#a">Link</a></nav>
+    <nav id="panel" hidden><a href="#a">Link</a> <a href="#b">Second</a></nav>
     <p><button type="button" id="elsewhere">Elsewhere</button></p>`;
   const host = document.querySelector("cui-menu-button")!;
   return { host, button: host.querySelector("button")!, panel: document.getElementById("panel")! };
@@ -70,6 +70,27 @@ describe("<cui-menu-button>", () => {
     panel.hidden = false;
     host.open = true;
     expect(document.activeElement).toBe(panel.querySelector("a"));
+  });
+
+  it("opening by click moves focus into a panel the consumer reveals in its cui-open-change handler", async () => {
+    // The usual wiring: the panel is hidden until the event says open. The element's first
+    // focus attempt (while reflecting `open`) finds it hidden; the one after the event lands.
+    const { host, button, panel } = mount();
+    host.addEventListener("cui-open-change", (e) => { panel.hidden = !e.detail.open; });
+    button.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(panel.hidden).toBe(false);
+    expect(document.activeElement).toBe(panel.querySelector("a"));
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(panel.querySelectorAll("a")[1]);
+  });
+
+  it("skips hidden items when moving between them", () => {
+    const { host, panel } = mount();
+    panel.hidden = false;
+    panel.querySelector("a")!.hidden = true;
+    host.open = true;
+    expect(document.activeElement).toBe(panel.querySelectorAll("a")[1]);
   });
 
   it("doesn't try to focus into a panel the consumer hasn't revealed yet", () => {
